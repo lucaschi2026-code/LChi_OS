@@ -1,0 +1,237 @@
+/* ── Reset & Base ───────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  height: 100vh;
+  overflow: hidden;
+  background: #0a0a12;
+}
+
+/* ── Desktop ────────────────────────────────────────────────── */
+.desktop {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(91, 33, 182, 0.25) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(29, 78, 216, 0.2) 0%, transparent 55%),
+    radial-gradient(ellipse at 60% 80%, rgba(15, 118, 110, 0.15) 0%, transparent 50%),
+    #0a0a12;
+}
+
+/* ── Top Bar ────────────────────────────────────────────────── */
+.topbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 36px;
+  background: rgba(10, 10, 18, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  z-index: 1000;
+}
+
+.topbar-brand {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.topbar-brand:hover { color: #a78bfa; }
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+#clock {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.06em;
+}
+
+/* ── Window ─────────────────────────────────────────────────── */
+.window {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  min-width: 340px;
+  border-radius: 14px;
+  background: rgba(20, 20, 35, 0.65);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 32px 64px rgba(0, 0, 0, 0.55),
+    0 0 0 0.5px rgba(255, 255, 255, 0.05) inset;
+  overflow: hidden;
+}
+
+/* ── Window Header ───────────────────────────────────────────── */
+.windowheader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px 10px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  cursor: grab;
+  user-select: none;
+  background: rgba(255, 255, 255, 0.03);
+}
+.windowheader:active { cursor: grabbing; }
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+/* Traffic light buttons */
+.closebutton,
+.minimizebutton,
+.expandbutton {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  transition: filter 0.15s;
+}
+.closebutton   { background: #ec6b5e; }
+.minimizebutton{ background: #f4be4f; }
+.expandbutton  { background: #62c554; }
+.closebutton:hover   { filter: brightness(1.15); }
+.minimizebutton:hover{ filter: brightness(1.15); }
+.expandbutton:hover  { filter: brightness(1.15); }
+
+.windowtitle {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.drag-hint {
+  color: rgba(255, 255, 255, 0.2);
+  font-size: 14px;
+  line-height: 1;
+  transition: color 0.2s;
+}
+.windowheader:hover .drag-hint { color: rgba(255, 255, 255, 0.45); }
+
+/* ── Window Body ────────────────────────────────────────────── */
+.window-body {
+  padding: 28px 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ── Welcome Window Content ─────────────────────────────────── */
+.welcome-heading {
+  font-size: 28px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.welcome-sub {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.45);
+  line-height: 1.65;
+}
+
+.action-btn {
+  margin-top: 8px;
+  align-self: flex-start;
+  background: rgba(167, 139, 250, 0.15);
+  color: #a78bfa;
+  border: 1px solid rgba(167, 139, 250, 0.35);
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  letter-spacing: 0.02em;
+}
+.action-btn:hover {
+  background: rgba(167, 139, 250, 0.25);
+  border-color: rgba(167, 139, 250, 0.6);
+}
+
+/* ── Notes Window Content ───────────────────────────────────── */
+.notes-area {
+  width: 280px;
+  height: 180px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 13px;
+  font-family: inherit;
+  line-height: 1.6;
+  padding: 12px;
+  resize: none;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.notes-area::placeholder { color: rgba(255, 255, 255, 0.2); }
+.notes-area:focus { border-color: rgba(167, 139, 250, 0.4); }
+
+/* ── Dock ───────────────────────────────────────────────────── */
+.dock {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  z-index: 999;
+}
+
+.dock-item {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  user-select: none;
+}
+.dock-item:hover {
+  background: rgba(255, 255, 255, 0.14);
+  transform: translateY(-4px);
+}
+.dock-item:active { transform: translateY(-2px); }

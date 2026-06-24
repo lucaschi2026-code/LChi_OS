@@ -1,7 +1,340 @@
-<html>
-    <body>
-        <h1>Welcome to Lchi OS!</h1>
-        <h2>Introduction</h2>
-        <p>Hello World</p>    
-    </body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MyOS</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="desktop">
+
+    <div class="topbar">
+      <span class="topbar-brand" id="welcomeopen">✦ MyOS</span>
+      <div class="topbar-right">
+        <span id="clock">--:--</span>
+      </div>
+    </div>
+
+    <div class="window" id="welcome" style="top: calc(50% - 160px); left: calc(50% - 220px);">
+      <div class="windowheader" id="welcomeheader">
+        <div class="header-controls">
+          <div class="closebutton" title="Close"></div>
+          <div class="minimizebutton" title="Minimize"></div>
+          <div class="expandbutton" title="Expand"></div>
+        </div>
+        <span class="windowtitle">Welcome</span>
+        <div class="drag-hint">⠿</div>
+      </div>
+      <div class="window-body">
+        <h2 class="welcome-heading">Hello, World.</h2>
+        <p class="welcome-sub">Drag me around. Open and close me.<br>This is your OS — make it yours.</p>
+        <div class="welcome-actions">
+          <button class="action-btn" id="notesopen">Open Notes ↗</button>
+          <button class="action-btn" id="galleryopen">My Projects ↗</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="window" id="notes" style="top: calc(50% - 100px); left: calc(50% + 60px); display: none;">
+      <div class="windowheader" id="notesheader">
+        <div class="header-controls">
+          <div class="closebutton" title="Close"></div>
+          <div class="minimizebutton" title="Minimize"></div>
+          <div class="expandbutton" title="Expand"></div>
+        </div>
+        <span class="windowtitle">Notes</span>
+        <div class="drag-hint">⠿</div>
+      </div>
+      <div class="window-body">
+        <textarea class="notes-area" placeholder="Write something..."></textarea>
+      </div>
+    </div>
+
+    <div class="window" id="gallery" style="top: 56px; left: calc(50% - 330px); display: none; width: 660px;">
+      <div class="windowheader" id="galleryheader">
+        <div class="header-controls">
+          <div class="closebutton" title="Close"></div>
+          <div class="minimizebutton" title="Minimize"></div>
+          <div class="expandbutton" title="Expand"></div>
+        </div>
+        <span class="windowtitle">Projects</span>
+        <div class="drag-hint">⠿</div>
+      </div>
+
+      <div class="gallery-layout">
+        <aside class="gallery-sidebar">
+          <p class="sidebar-section-label">Filter</p>
+          <div id="filter-buttons"></div>
+          <p class="sidebar-section-label" style="margin-top: 20px;">Sort</p>
+          <select class="sort-select" id="sort-select">
+            <option value="newest">Newest</option>
+            <option value="oldest">Oldest</option>
+            <option value="alpha">A → Z</option>
+          </select>
+        </aside>
+
+        <div class="gallery-main">
+          <div class="gallery-grid" id="gallery-grid"></div>
+
+          <div class="gallery-detail" id="gallery-detail">
+            <button class="detail-back" id="detail-back">← Back</button>
+            <div class="detail-thumb" id="detail-thumb"></div>
+            <div class="detail-meta">
+              <div class="detail-tags" id="detail-tags"></div>
+              <span class="detail-year" id="detail-year"></span>
+            </div>
+            <h3 class="detail-title" id="detail-title"></h3>
+            <p class="detail-desc" id="detail-desc"></p>
+            <a class="detail-link" id="detail-link" href="#" target="_blank">View Project →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dock">
+      <div class="dock-item" id="dock-welcome" title="Welcome">✦</div>
+      <div class="dock-item" id="dock-notes"   title="Notes">✎</div>
+      <div class="dock-item" id="dock-gallery" title="Projects">⊞</div>
+    </div>
+
+  </div><script>
+    // ── Clock ────────────────────────────────────────────────────────
+    function updateClock() {
+      const now = new Date();
+      const h = String(now.getHours()).padStart(2, "0");
+      const m = String(now.getMinutes()).padStart(2, "0");
+      document.getElementById("clock").textContent = `${h}:${m}`;
+    }
+    updateClock();
+    setInterval(updateClock, 10000);
+
+    // ── Window Management Engine ─────────────────────────────────────
+    let zCounter = 10;
+    function getTopZ() { return ++zCounter; }
+
+    function openWindow(el) {
+      el.style.display = "flex";
+      el.style.zIndex = getTopZ();
+    }
+
+    function closeWindow(el) {
+      el.style.display = "none";
+    }
+
+    function toggleMaximize(el) {
+      if (el.dataset.maximized === "true") {
+        // Restore to previous dimensions
+        el.style.width = el.dataset.prevWidth;
+        el.style.height = el.dataset.prevHeight;
+        el.style.top = el.dataset.prevTop;
+        el.style.left = el.dataset.prevLeft;
+        el.dataset.maximized = "false";
+      } else {
+        // Save dimensions and maximize
+        el.dataset.prevWidth = el.style.width || getComputedStyle(el).width;
+        el.dataset.prevHeight = el.style.height || getComputedStyle(el).height;
+        el.dataset.prevTop = el.style.top || getComputedStyle(el).top;
+        el.dataset.prevLeft = el.style.left || getComputedStyle(el).left;
+
+        el.style.width = "100vw";
+        el.style.height = "calc(100vh - 36px)"; // Accounts for topbar
+        el.style.top = "36px";
+        el.style.left = "0px";
+        el.dataset.maximized = "true";
+      }
+    }
+
+    // Connect standard window functionality
+    document.querySelectorAll(".window").forEach(win => {
+      // Bring to front on click
+      win.addEventListener("mousedown", () => { win.style.zIndex = getTopZ(); });
+
+      const controls = win.querySelector(".header-controls");
+      if (controls) {
+        // PREVENT DRAG CONFLICT: Stop mousedown from reaching the header when clicking controls
+        controls.addEventListener("mousedown", e => e.stopPropagation());
+      }
+
+      // Connect traffic light buttons
+      const closeBtn = win.querySelector(".closebutton");
+      const minBtn = win.querySelector(".minimizebutton");
+      const expandBtn = win.querySelector(".expandbutton");
+
+      if (closeBtn) closeBtn.addEventListener("click", () => closeWindow(win));
+      if (minBtn) minBtn.addEventListener("click", () => closeWindow(win)); // Minimize acts as close temporarily
+      if (expandBtn) expandBtn.addEventListener("click", () => toggleMaximize(win));
+    });
+
+    // ── Bind Launchers ───────────────────────────────────────────────
+    const welcomeScreen = document.getElementById("welcome");
+    const notesScreen   = document.getElementById("notes");
+    const galleryScreen = document.getElementById("gallery");
+
+    document.getElementById("welcomeopen").addEventListener("click", () => openWindow(welcomeScreen));
+    document.getElementById("notesopen").addEventListener("click", () => openWindow(notesScreen));
+    document.getElementById("galleryopen").addEventListener("click", () => openWindow(galleryScreen));
+
+    document.getElementById("dock-welcome").addEventListener("click", () => openWindow(welcomeScreen));
+    document.getElementById("dock-notes").addEventListener("click", () => openWindow(notesScreen));
+    document.getElementById("dock-gallery").addEventListener("click", () => openWindow(galleryScreen));
+
+    // ── Dragging Engine ──────────────────────────────────────────────
+    function dragElement(element) {
+      let initialX = 0, initialY = 0, currentX = 0, currentY = 0;
+      const handle = document.getElementById(element.id + "header");
+
+      (handle || element).addEventListener("mousedown", startDragging);
+
+      function startDragging(e) {
+        // Do not allow dragging if the window is maximized
+        if (element.dataset.maximized === "true") return; 
+
+        e = e || window.event;
+        initialX = e.clientX;
+        initialY = e.clientY;
+        document.onmouseup = stopDragging;
+        document.onmousemove = whileDragging;
+      }
+
+      function whileDragging(e) {
+        e = e || window.event;
+        e.preventDefault(); // Prevents highlight selection while dragging
+        currentX = initialX - e.clientX;
+        currentY = initialY - e.clientY;
+        initialX = e.clientX;
+        initialY = e.clientY;
+        element.style.top  = (element.offsetTop - currentY) + "px";
+        element.style.left = (element.offsetLeft - currentX) + "px";
+      }
+
+      function stopDragging() {
+        document.onmouseup = null;
+        document.onmousemove = null;
+      }
+    }
+
+    dragElement(welcomeScreen);
+    dragElement(notesScreen);
+    dragElement(galleryScreen);
+
+    // ── Projects Data & Logic ────────────────────────────────────────
+    const projects = [
+      {
+        id: 1, title: "Portfolio OS", desc: "A browser-based desktop OS built from scratch with draggable windows and a dock.",
+        detail: "Built using vanilla HTML, CSS, and JavaScript with zero frameworks. Implements a fully functional windowing system with z-index stacking, open/close state, and a reusable drag engine. A deep dive into raw DOM manipulation.",
+        tags: ["Web", "JS"], gradient: "linear-gradient(135deg, #5b21b6 0%, #1d4ed8 100%)", link: "#", year: "2025"
+      },
+      {
+        id: 2, title: "Weather Dashboard", desc: "Real-time weather visualization with animated SVG icons and 7-day forecasts.",
+        detail: "Consumes the OpenWeatherMap API and renders animated SVG weather icons. Built with React and recharts for the forecast graphs. Supports city search with debounced input and geolocation fallback.",
+        tags: ["Web", "React", "API"], gradient: "linear-gradient(135deg, #0f766e 0%, #0ea5e9 100%)", link: "#", year: "2024"
+      },
+      {
+        id: 3, title: "Type Racer", desc: "Real-time multiplayer typing speed game. Race against others live.",
+        detail: "Socket.io-powered real-time typing race. Players join rooms and compete live. Tracks WPM and accuracy in real time, with a global leaderboard backed by a Node.js and SQLite backend.",
+        tags: ["Web", "Node", "Socket.io"], gradient: "linear-gradient(135deg, #b45309 0%, #dc2626 100%)", link: "#", year: "2024"
+      },
+      {
+        id: 4, title: "Pixel Studio", desc: "In-browser pixel art editor with palette tools and PNG export.",
+        detail: "Canvas-based pixel art editor with palette management, fill tool, undo/redo history, and export to PNG. Entirely vanilla JS — no canvas libraries. Supports variable canvas sizes and symmetry mode.",
+        tags: ["Web", "Canvas", "JS"], gradient: "linear-gradient(135deg, #be185d 0%, #7c3aed 100%)", link: "#", year: "2023"
+      },
+      {
+        id: 5, title: "Habit Tracker", desc: "Minimal local-first daily habit tracking with a calendar heat map.",
+        detail: "Local-first habit tracking app — data persists in localStorage with no account needed. Built with vanilla JS and CSS Grid for the calendar heat map view. Streaks, completion rates, and weekly summaries all computed client-side.",
+        tags: ["Web", "JS"], gradient: "linear-gradient(135deg, #065f46 0%, #1d4ed8 100%)", link: "#", year: "2023"
+      },
+      {
+        id: 6, title: "Dev Blog", desc: "A static blog powered by a custom Node.js static site generator.",
+        detail: "Custom static site generator written in Node.js. Converts Markdown files to HTML using a handcrafted template engine with front-matter support. Automatically generates tag pages and an RSS feed. Deploys to GitHub Pages via Actions.",
+        tags: ["Web", "Node"], gradient: "linear-gradient(135deg, #1e3a5f 0%, #0f766e 100%)", link: "#", year: "2022"
+      }
+    ];
+
+    let activeFilter = "All";
+    const allTags = ["All", ...new Set(projects.flatMap(p => p.tags))];
+    const filterContainer = document.getElementById("filter-buttons");
+
+    allTags.forEach(tag => {
+      const btn = document.createElement("button");
+      btn.className = "filter-btn" + (tag === "All" ? " active" : "");
+      btn.textContent = tag;
+      btn.addEventListener("click", () => {
+        activeFilter = tag;
+        document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        renderGrid();
+      });
+      filterContainer.appendChild(btn);
+    });
+
+    document.getElementById("sort-select").addEventListener("change", renderGrid);
+
+    function getSorted(list) {
+      const sortVal = document.getElementById("sort-select").value;
+      const copy = [...list];
+      if (sortVal === "newest") return copy.sort((a, b) => b.year - a.year);
+      if (sortVal === "oldest") return copy.sort((a, b) => a.year - b.year);
+      if (sortVal === "alpha")  return copy.sort((a, b) => a.title.localeCompare(b.title));
+      return copy;
+    }
+
+    function renderGrid() {
+      const grid = document.getElementById("gallery-grid");
+      grid.innerHTML = "";
+      closeDetail();
+
+      const filtered = activeFilter === "All"
+        ? projects
+        : projects.filter(p => p.tags.includes(activeFilter));
+
+      const sorted = getSorted(filtered);
+
+      if (sorted.length === 0) {
+        grid.innerHTML = `<p class="gallery-empty">No projects tagged "${activeFilter}" yet.</p>`;
+        return;
+      }
+
+      sorted.forEach(project => {
+        const card = document.createElement("div");
+        card.className = "project-card";
+        card.innerHTML = `
+          <div class="card-thumb" style="background: ${project.gradient};">
+            <span class="card-year">${project.year}</span>
+          </div>
+          <div class="card-body">
+            <div class="card-tags">
+              ${project.tags.map(t => `<span class="tag">${t}</span>`).join("")}
+            </div>
+            <h4 class="card-title">${project.title}</h4>
+            <p class="card-desc">${project.desc}</p>
+          </div>
+        `;
+        card.addEventListener("click", () => openDetail(project));
+        grid.appendChild(card);
+      });
+    }
+
+    function openDetail(project) {
+      document.getElementById("detail-thumb").style.background  = project.gradient;
+      document.getElementById("detail-title").textContent       = project.title;
+      document.getElementById("detail-year").textContent        = project.year;
+      document.getElementById("detail-desc").textContent        = project.detail;
+      document.getElementById("detail-link").href               = project.link;
+      document.getElementById("detail-tags").innerHTML          = project.tags.map(t => `<span class="tag">${t}</span>`).join("");
+      document.getElementById("gallery-detail").classList.add("open");
+    }
+
+    function closeDetail() {
+      document.getElementById("gallery-detail").classList.remove("open");
+    }
+
+    document.getElementById("detail-back").addEventListener("click", closeDetail);
+
+    // Initial render
+    renderGrid();
+  </script>
+</body>
 </html>
